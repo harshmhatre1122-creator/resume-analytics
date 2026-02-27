@@ -1,102 +1,132 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Resume Analyzer Pro</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+
+    <!-- PDF + Download -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="app">
+<div class="wrapper">
 
-    <header>
+    <!-- HERO HEADER -->
+    <section class="hero">
         <h1>Resume Analyzer Pro</h1>
-        <p>Upload Resume → Get ATS Smart Report</p>
+        <p>Upload your resume and get an instant ATS-style analysis report</p>
 
-        <input type="file" id="resumeUpload" accept=".pdf">
-        <button onclick="analyzeResume()">Analyze Resume</button>
-    </header>
+        <div class="upload-box">
+            <input type="file" id="resumeUpload" accept=".pdf">
+            <button onclick="analyzeResume()">Analyze Resume</button>
+        </div>
+    </section>
 
-    <!-- Loading -->
+    <!-- LOADING OVERLAY -->
     <div id="loading" class="loading hidden">
         <div class="loading-card">
+            <div class="spinner"></div>
             <p id="loadingText">Parsing your resume...</p>
         </div>
     </div>
 
-    <!-- Report -->
-    <div id="report" class="report hidden">
+    <!-- MAIN DASHBOARD -->
+    <section id="report" class="dashboard hidden">
 
-        <!-- LEFT PANEL -->
-        <div class="score-panel">
+        <!-- LEFT SCORE PANEL -->
+        <div class="card score-card">
+
             <h2>Your Score</h2>
+
             <div class="score-circle">
                 <span id="scoreValue">0</span>
             </div>
 
-            <div class="score-breakdown">
-                <div class="row">
-                    <span>Content</span>
-                    <div class="progress"><div id="contentBar"></div></div>
+            <div class="progress-group">
+
+                <div class="progress-item">
+                    <div class="label-row">
+                        <span>Content</span>
+                        <span id="contentPercent">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="contentBar"></div>
+                    </div>
                 </div>
 
-                <div class="row">
-                    <span>Sections</span>
-                    <div class="progress"><div id="sectionBar"></div></div>
+                <div class="progress-item">
+                    <div class="label-row">
+                        <span>Sections</span>
+                        <span id="sectionPercent">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="sectionBar"></div>
+                    </div>
                 </div>
 
-                <div class="row">
-                    <span>ATS Essentials</span>
-                    <div class="progress"><div id="atsBar"></div></div>
+                <div class="progress-item">
+                    <div class="label-row">
+                        <span>ATS Essentials</span>
+                        <span id="atsPercent">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="atsBar"></div>
+                    </div>
                 </div>
 
-                <div class="row">
-                    <span>Tailoring</span>
-                    <div class="progress"><div id="tailorBar"></div></div>
+                <div class="progress-item">
+                    <div class="label-row">
+                        <span>Tailoring</span>
+                        <span id="tailorPercent">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="tailorBar"></div>
+                    </div>
                 </div>
+
             </div>
         </div>
 
-        <!-- RIGHT PANEL -->
-        <div class="analysis-panel">
+        <!-- RIGHT ANALYSIS PANEL -->
+        <div class="card analysis-card">
 
-            <h2 id="candidateName"></h2>
+            <div class="analysis-header">
+                <h2 id="candidateName">Candidate Name</h2>
 
-            <div class="status-box">
-                <div class="status-progress">
-                    <div id="parseProgress"></div>
+                <div class="parse-status">
+                    <div class="parse-bar">
+                        <div id="parseProgress"></div>
+                    </div>
+                    <p id="statusText"></p>
                 </div>
-                <p id="statusText"></p>
             </div>
 
-            <div class="issues-box">
+            <div class="issues-section">
                 <h3>Detected Issues</h3>
                 <ul id="issuesList"></ul>
             </div>
 
-            <!-- <div class="resume-preview">
-             <h3>Generated Resume</h3>
-             <div id="resumePreview"></div>
-             <button onclick="downloadResume()" class="download-btn">
-                  Download Resume PDF
-             </button>
-        </div> -->
+            <div class="resume-section">
+                <div class="resume-header-row">
+                    <h3>Generated Resume</h3>
+                    <button onclick="downloadResume()" class="download-btn">
+                        Download PDF
+                    </button>
+                </div>
 
-          <div class="letter-generator">
-          <h3>Generated Cover Letter</h3>
-
-        <div id="letterPreview"></div>
-
-        <button onclick="downloadLetter()" class="download-btn">
-            Download Cover Letter PDF
-       </button>
-     </div>
+                <div id="resumePreview"></div>
+            </div>
 
         </div>
 
-    </div>
+    </section>
 
 </div>
 
