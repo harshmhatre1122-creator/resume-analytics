@@ -1,0 +1,191 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: #f4f6fb;
+}
+
+.app {
+    width: 95%;
+    max-width: 1400px;
+    margin: auto;
+    padding: 30px 0;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+button {
+    padding: 10px 20px;
+    background: #4f46e5;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.report {
+    display: flex;
+    gap: 30px;
+}
+
+/* LEFT PANEL */
+.score-panel {
+    width: 30%;
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: #4f46e5;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    margin: 20px auto;
+}
+
+.score-breakdown .row {
+    margin: 15px 0;
+}
+
+.progress {
+    background: #e5e7eb;
+    height: 8px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress div {
+    height: 8px;
+    background: #4f46e5;
+    width: 0%;
+}
+
+/* RIGHT PANEL */
+.analysis-panel {
+    width: 70%;
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.status-box {
+    margin-bottom: 20px;
+}
+
+.status-progress {
+    background: #e5e7eb;
+    height: 8px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.status-progress div {
+    height: 8px;
+    background: #10b981;
+    width: 0%;
+}
+
+.issues-box {
+    background: #f9fafb;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.resume-preview {
+    background: #f3f4f6;
+    padding: 15px;
+    border-radius: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.loading {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.loading-card {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+}
+
+.hidden {
+    display: none;
+}
+
+.resume-template {
+    background: white;
+    color: black;
+    padding: 30px;
+    font-family: Arial, sans-serif;
+}
+
+.resume-template h1 {
+    font-size: 28px;
+    margin-bottom: 5px;
+}
+
+.resume-template h2 {
+    font-size: 16px;
+    margin-top: 20px;
+    border-bottom: 2px solid black;
+    padding-bottom: 4px;
+}
+
+.resume-template ul {
+    padding-left: 18px;
+}
+
+.download-btn {
+    margin-top: 15px;
+    padding: 10px 15px;
+    background: #4f46e5;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.letter-template {
+    background: white;
+    color: black;
+    padding: 40px;
+    font-family: 'Georgia', serif;
+    line-height: 1.7;
+}
+
+.letter-template h1 {
+    font-size: 22px;
+    margin-bottom: 5px;
+}
+
+.letter-template .contact-line {
+    font-size: 13px;
+    color: #444;
+    margin-bottom: 25px;
+}
+
+.letter-template .date {
+    margin-bottom: 20px;
+}
+
+.letter-template .subject {
+    font-weight: bold;
+    margin: 20px 0;
+}

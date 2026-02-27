@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Resume Analyzer Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+
+    <header>
+        <h1>Resume Analyzer Pro</h1>
+        <p>Upload Resume → Get ATS Smart Report</p>
+
+        <input type="file" id="resumeUpload" accept=".pdf">
+        <button onclick="analyzeResume()">Analyze Resume</button>
+    </header>
+
+    <!-- Loading -->
+    <div id="loading" class="loading hidden">
+        <div class="loading-card">
+            <p id="loadingText">Parsing your resume...</p>
+        </div>
+    </div>
+
+    <!-- Report -->
+    <div id="report" class="report hidden">
+
+        <!-- LEFT PANEL -->
+        <div class="score-panel">
+            <h2>Your Score</h2>
+            <div class="score-circle">
+                <span id="scoreValue">0</span>
+            </div>
+
+            <div class="score-breakdown">
+                <div class="row">
+                    <span>Content</span>
+                    <div class="progress"><div id="contentBar"></div></div>
+                </div>
+
+                <div class="row">
+                    <span>Sections</span>
+                    <div class="progress"><div id="sectionBar"></div></div>
+                </div>
+
+                <div class="row">
+                    <span>ATS Essentials</span>
+                    <div class="progress"><div id="atsBar"></div></div>
+                </div>
+
+                <div class="row">
+                    <span>Tailoring</span>
+                    <div class="progress"><div id="tailorBar"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="analysis-panel">
+
+            <h2 id="candidateName"></h2>
+
+            <div class="status-box">
+                <div class="status-progress">
+                    <div id="parseProgress"></div>
+                </div>
+                <p id="statusText"></p>
+            </div>
+
+            <div class="issues-box">
+                <h3>Detected Issues</h3>
+                <ul id="issuesList"></ul>
+            </div>
+
+            <!-- <div class="resume-preview">
+             <h3>Generated Resume</h3>
+             <div id="resumePreview"></div>
+             <button onclick="downloadResume()" class="download-btn">
+                  Download Resume PDF
+             </button>
+        </div> -->
+
+          <div class="letter-generator">
+          <h3>Generated Cover Letter</h3>
+
+        <div id="letterPreview"></div>
+
+        <button onclick="downloadLetter()" class="download-btn">
+            Download Cover Letter PDF
+       </button>
+     </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
