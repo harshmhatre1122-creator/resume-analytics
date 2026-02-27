@@ -302,7 +302,7 @@ function generateResumeTemplate(
 
 // ==========================
 // DOWNLOAD PDF
-// ==========================
+// ==========================]]
 
 function downloadResume() {
 
