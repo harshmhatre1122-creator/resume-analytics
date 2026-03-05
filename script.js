@@ -1,331 +1,293 @@
-// ============================================
-// RESUME ANALYZER PRO - FULL WORKING VERSION
-// ============================================
+async function analyzeResume(){
 
+const file=document.getElementById("resumeUpload").files[0];
 
-// ==============================
-// MAIN ANALYZE FUNCTION
-// ==============================
+if(!file){
+alert("Upload resume first");
+return;
+}
 
-async function analyzeResume() {
+showLoading();
 
-    const fileInput = document.getElementById("resumeUpload");
-    const file = fileInput.files[0];
+const text=await extractPDF(file);
 
-    if (!file) {
-        alert("Please upload a resume first.");
-        return;
-    }
+generateReport(text);
 
-    showLoading("Parsing your resume...");
+hideLoading();
 
-    try {
-        const text = await extractPDFText(file);
-        generateReport(text);
-    } catch (err) {
-        console.error(err);
-        hideLoading();
-        alert("Error reading PDF.");
-    }
 }
 
 
-// ==============================
-// PDF TEXT EXTRACTION
-// ==============================
+async function extractPDF(file){
 
-async function extractPDFText(file) {
+const reader=new FileReader();
 
-    const reader = new FileReader();
+return new Promise((resolve)=>{
 
-    return new Promise((resolve, reject) => {
+reader.onload=async function(){
 
-        reader.onload = async function () {
+const typed=new Uint8Array(this.result);
 
-            try {
-                const typedarray = new Uint8Array(this.result);
-                const pdf = await pdfjsLib.getDocument(typedarray).promise;
+const pdf=await pdfjsLib.getDocument(typed).promise;
 
-                let text = "";
+let text="";
 
-                for (let i = 1; i <= pdf.numPages; i++) {
-                    const page = await pdf.getPage(i);
-                    const content = await page.getTextContent();
+for(let i=1;i<=pdf.numPages;i++){
 
-                    content.items.forEach(item => {
-                        text += item.str + " ";
-                    });
-                }
+const page=await pdf.getPage(i);
 
-                resolve(text);
+const content=await page.getTextContent();
 
-            } catch (error) {
-                reject(error);
-            }
-        };
+content.items.forEach(item=>{
+text+=item.str+" ";
+});
 
-        reader.readAsArrayBuffer(file);
-    });
+}
+
+resolve(text);
+
+};
+
+reader.readAsArrayBuffer(file);
+
+});
+
 }
 
 
-// ==============================
-// GENERATE REPORT
-// ==============================
+function generateReport(text){
 
-function generateReport(text) {
+document.getElementById("dashboard").classList.remove("hidden");
 
-    hideLoading();
-    document.getElementById("report").classList.remove("hidden");
+const skills=extractSkills(text);
 
-    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+const experience=detectExperience(text);
 
-    const name = detectName(lines);
-    const contact = extractContactInfo(text);
+const projects=detectProjects(text);
 
-    const summary = extractSection(text, ["summary"]);
-    const experience = extractSection(text, ["experience", "work experience"]);
-    const education = extractSection(text, ["education"]);
-    const projects = extractSection(text, ["projects"]);
-    const certifications = extractSection(text, ["certifications"]);
+const score=calculateScore(skills.length,projects,experience);
 
-    const skills = extractSkills(text);
+document.getElementById("scoreValue").innerText=score;
 
-    const projectCount = projects.length;
-    const experienceYears = detectExperienceYears(text);
+document.getElementById("skillCount").innerText=skills.length;
 
-    const score = calculateScore(projectCount, skills.length, experienceYears);
+document.getElementById("projectCount").innerText=projects;
 
-    updateScoreUI(score, projectCount, skills.length, experienceYears);
-    generateIssues(projectCount, skills.length, experienceYears);
+document.getElementById("experienceYears").innerText=experience+" yrs";
 
-    document.getElementById("candidateName").innerText = name;
+renderSkills(skills);
 
-    document.getElementById("resumePreview").innerHTML =
-        generateResumeTemplate(
-            name,
-            contact,
-            summary,
-            experience,
-            education,
-            projects,
-            skills,
-            certifications
-        );
+generateIssues(projects,skills.length,experience);
+
+generateResume(text);
+
+createCharts(skills, experience, projects, score);
+
 }
 
 
-// ==============================
-// NAME DETECTION
-// ==============================
+function extractSkills(text){
 
-function detectName(lines) {
+const keywords=[
+"javascript","react","node","python","java","sql","html","css",
+"mongodb","express","docker","linux","aws","git","power bi"
+];
 
-    for (let line of lines.slice(0, 10)) {
-        if (line.length > 4 && /^[A-Za-z\s]+$/.test(line)) {
-            return line;
-        }
-    }
+const lower=text.toLowerCase();
 
-    return "Candidate Name";
+return keywords.filter(skill=>lower.includes(skill));
+
 }
 
 
-// ==============================
-// CONTACT EXTRACTION
-// ==============================
+function detectExperience(text){
 
-function extractContactInfo(text) {
+const years=text.match(/20\d{2}/g);
 
-    const emailMatch = text.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
-    const phoneMatch = text.match(/\+?\d[\d\s\-]{8,}/);
+if(!years||years.length<2)return 0;
 
-    return {
-        email: emailMatch ? emailMatch[0] : "Not detected",
-        phone: phoneMatch ? phoneMatch[0] : "Not detected"
-    };
+const nums=years.map(Number);
+
+return Math.max(...nums)-Math.min(...nums);
+
 }
 
 
-// ==============================
-// SECTION EXTRACTION
-// ==============================
+function detectProjects(text){
 
-function extractSection(text, keywords) {
+const count=(text.match(/project/gi)||[]).length;
 
-    const lower = text.toLowerCase();
+return count;
 
-    for (let key of keywords) {
-        const index = lower.indexOf(key);
-        if (index !== -1) {
-            return text.substring(index, index + 500);
-        }
-    }
-
-    return "Not detected.";
 }
 
 
-// ==============================
-// SKILL EXTRACTION
-// ==============================
+function calculateScore(skills,projects,experience){
 
-function extractSkills(text) {
+let score=40;
 
-    const skillKeywords = [
-        "javascript","react","node","express","python","java",
-        "sql","mysql","mongodb","flask","html","css",
-        "power bi","git","linux","docker","api"
-    ];
+score+=skills*4;
 
-    const lower = text.toLowerCase();
-    return skillKeywords.filter(skill => lower.includes(skill))
-                        .map(skill => skill.toUpperCase());
+score+=projects*5;
+
+score+=experience*3;
+
+if(score>100)score=100;
+
+return score;
+
 }
 
 
-// ==============================
-// EXPERIENCE YEARS
-// ==============================
+function renderSkills(skills){
 
-function detectExperienceYears(text) {
+const box=document.getElementById("skillsList");
 
-    const years = text.match(/20\d{2}/g);
-    if (!years || years.length < 2) return 0;
+box.innerHTML="";
 
-    const nums = years.map(Number);
-    return Math.max(...nums) - Math.min(...nums);
+skills.forEach(skill=>{
+
+const span=document.createElement("span");
+
+span.innerText=skill.toUpperCase();
+
+box.appendChild(span);
+
+});
+
 }
 
 
-// ==============================
-// SCORE CALCULATION
-// ==============================
+function generateIssues(projects,skills,experience){
 
-function calculateScore(projects, skills, experience) {
+const list=document.getElementById("issuesList");
 
-    let score = 50;
+list.innerHTML="";
 
-    score += Math.min(projects * 5, 20);
-    score += Math.min(skills * 3, 20);
-    score += Math.min(experience * 5, 10);
+if(projects<2)addIssue("Add more projects");
 
-    return Math.min(score, 100);
+if(skills<5)addIssue("Add more technical skills");
+
+if(experience<1)addIssue("Add measurable experience");
+
+if(list.innerHTML==="")addIssue("Resume structure looks good");
+
 }
 
 
-// ==============================
-// UPDATE UI
-// ==============================
+function addIssue(text){
 
-function updateScoreUI(score, projects, skills, experience) {
+const li=document.createElement("li");
 
-    document.getElementById("scoreValue").innerText = score;
+li.innerText=text;
 
-    setProgress("contentBar", score);
-    setProgress("sectionBar", Math.min(projects * 20, 100));
-    setProgress("atsBar", Math.min(skills * 10, 100));
-    setProgress("tailorBar", Math.min(experience * 20, 100));
+document.getElementById("issuesList").appendChild(li);
+
 }
 
-function setProgress(id, value) {
-    document.getElementById(id).style.width = value + "%";
-}
+function generateResume(text){
 
+const name = text.split("\n")[0];
 
-// ==============================
-// ISSUE GENERATION
-// ==============================
+const email = text.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
 
-function generateIssues(projects, skills, experience) {
+const phone = text.match(/\+?\d[\d\s\-]{8,}/);
 
-    const list = document.getElementById("issuesList");
-    list.innerHTML = "";
+const skills = extractSkills(text);
 
-    if (projects < 3) addIssue("Add more structured projects.");
-    if (skills < 5) addIssue("Add more technical skills.");
-    if (experience < 2) addIssue("Add quantified experience duration.");
+document.getElementById("resumePreview").innerHTML=`
 
-    if (!list.innerHTML) {
-        addIssue("No major structural issues detected.");
-    }
-}
+<div class="resume-modern" id="downloadArea">
 
-function addIssue(text) {
-    const li = document.createElement("li");
-    li.innerText = text;
-    document.getElementById("issuesList").appendChild(li);
-}
+<div class="resume-header">
 
+<h1>${name}</h1>
 
-// ==============================
-// RESUME TEMPLATE
-// ==============================
+<div class="contact">
 
-function generateResumeTemplate(
-    name,
-    contact,
-    summary,
-    experience,
-    education,
-    projects,
-    skills,
-    certifications
-) {
+<p>${email ? email[0] : ""}</p>
+<p>${phone ? phone[0] : ""}</p>
 
-    return `
-    <div class="resume-modern" id="downloadArea">
-        <h1>${name}</h1>
-        <p>Email: ${contact.email} | Phone: ${contact.phone}</p>
-        <hr/>
-        <h3>SUMMARY</h3>
-        <p>${summary}</p>
-        <h3>EXPERIENCE</h3>
-        <p>${experience}</p>
-        <h3>EDUCATION</h3>
-        <p>${education}</p>
-        <h3>PROJECTS</h3>
-        <p>${projects}</p>
-        <h3>SKILLS</h3>
-        <p>${skills.join(", ")}</p>
-        <h3>CERTIFICATIONS</h3>
-        <p>${certifications}</p>
-    </div>
-    `;
+</div>
+
+</div>
+
+<h3>Skills</h3>
+
+<div class="skills">
+
+${skills.map(s=>`<span>${s}</span>`).join("")}
+
+</div>
+
+<h3>Resume Content</h3>
+
+<p>${text.substring(0,1200)}</p>
+
+</div>
+
+`;
+
 }
 
 
-// ==============================
-// DOWNLOAD PDF
-// ==============================
+function downloadResume(){
 
-function downloadResume() {
+const element=document.getElementById("resumePreview");
 
-    const element = document.getElementById("downloadArea");
+html2pdf().from(element).save("GeneratedResume.pdf");
 
-    if (!element) {
-        alert("Generate resume first.");
-        return;
-    }
-
-    if (typeof html2pdf === "undefined") {
-        alert("PDF library not loaded.");
-        return;
-    }
-
-    html2pdf().from(element).save("Generated_Resume.pdf");
 }
 
 
-// ==============================
-// LOADING
-// ==============================
+function showLoading(){
 
-function showLoading(text) {
-    document.getElementById("loading").classList.remove("hidden");
-    document.getElementById("loadingText").innerText = text;
+document.getElementById("loading").classList.remove("hidden");
+
 }
 
-function hideLoading() {
-    document.getElementById("loading").classList.add("hidden");
+function hideLoading(){
+
+document.getElementById("loading").classList.add("hidden");
+
+}
+
+function createCharts(skills, experience, projects, score){
+
+new Chart(document.getElementById("skillsChart"),{
+type:"bar",
+data:{
+labels:skills,
+datasets:[{
+label:"Skill Match",
+data:skills.map(()=>Math.floor(Math.random()*100)),
+backgroundColor:"#22c55e"
+}]
+}
+});
+
+new Chart(document.getElementById("experienceChart"),{
+type:"line",
+data:{
+labels:["Start","Mid","Current"],
+datasets:[{
+label:"Experience Growth",
+data:[1,experience/2,experience],
+borderColor:"#4ade80",
+fill:false
+}]
+}
+});
+
+new Chart(document.getElementById("scoreChart"),{
+type:"doughnut",
+data:{
+labels:["Score","Remaining"],
+datasets:[{
+data:[score,100-score],
+backgroundColor:["#22c55e","#1f2937"]
+}]
+}
+});
+
 }

@@ -1,135 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Resume Analyzer Pro</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resume Analyzer Dashboard</title>
 
-    <!-- PDF + Download -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<div class="wrapper">
+<div class="container">
 
-    <!-- HERO HEADER -->
-    <section class="hero">
-        <h1>Resume Analyzer Pro</h1>
-        <p>Upload your resume and get an instant ATS-style analysis report</p>
+<header>
+<h1>Resume Analyzer Pro</h1>
+<p>Upload your resume and see analytics dashboard</p>
 
-        <div class="upload-box">
-            <input type="file" id="resumeUpload" accept=".pdf">
-            <button onclick="analyzeResume()">Analyze Resume</button>
-        </div>
-    </section>
+<div class="upload">
+<input type="file" id="resumeUpload" accept=".pdf">
+<button onclick="analyzeResume()">Analyze Resume</button>
+</div>
+</header>
 
-    <!-- LOADING OVERLAY -->
-    <div id="loading" class="loading hidden">
-        <div class="loading-card">
-            <div class="spinner"></div>
-            <p id="loadingText">Parsing your resume...</p>
-        </div>
-    </div>
 
-    <!-- MAIN DASHBOARD -->
-    <section id="report" class="dashboard hidden">
+<section id="dashboard" class="dashboard hidden">
 
-        <!-- LEFT SCORE PANEL -->
-        <div class="card score-card">
+<div class="grid">
 
-            <h2>Your Score</h2>
+<div class="card score">
+<h3>ATS Score</h3>
+<div class="big" id="scoreValue">0</div>
+</div>
 
-            <div class="score-circle">
-                <span id="scoreValue">0</span>
-            </div>
+<div class="card">
+<h3>Projects</h3>
+<div class="big" id="projectCount">0</div>
+</div>
 
-            <div class="progress-group">
+<div class="card">
+<h3>Skills</h3>
+<div class="big" id="skillCount">0</div>
+</div>
 
-                <div class="progress-item">
-                    <div class="label-row">
-                        <span>Content</span>
-                        <span id="contentPercent">0%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div id="contentBar"></div>
-                    </div>
-                </div>
+<div class="card">
+<h3>Experience</h3>
+<div class="big" id="experienceYears">0 yrs</div>
+</div>
 
-                <div class="progress-item">
-                    <div class="label-row">
-                        <span>Sections</span>
-                        <span id="sectionPercent">0%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div id="sectionBar"></div>
-                    </div>
-                </div>
+<div class="card wide">
+<h3>Detected Skills</h3>
+<div id="skillsList" class="skills"></div>
+</div>
 
-                <div class="progress-item">
-                    <div class="label-row">
-                        <span>ATS Essentials</span>
-                        <span id="atsPercent">0%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div id="atsBar"></div>
-                    </div>
-                </div>
+<div class="card wide">
+<h3>Issues Found</h3>
+<ul id="issuesList"></ul>
+</div>
+<div class="card wide">
+<h3>Skill Distribution</h3>
+<canvas id="skillsChart"></canvas>
+</div>
 
-                <div class="progress-item">
-                    <div class="label-row">
-                        <span>Tailoring</span>
-                        <span id="tailorPercent">0%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div id="tailorBar"></div>
-                    </div>
-                </div>
+<div class="card wide">
+<h3>Experience Timeline</h3>
+<canvas id="experienceChart"></canvas>
+</div>
 
-            </div>
-        </div>
+<div class="card wide">
+<h3>ATS Score Breakdown</h3>
+<canvas id="scoreChart"></canvas>
+</div>
+<div class="card full">
 
-        <!-- RIGHT ANALYSIS PANEL -->
-        <div class="card analysis-card">
+<div class="resume-header">
+<h3>Generated Resume</h3>
 
-            <div class="analysis-header">
-                <h2 id="candidateName">Candidate Name</h2>
+<button onclick="downloadResume()">Download Resume</button>
+</div>
 
-                <div class="parse-status">
-                    <div class="parse-bar">
-                        <div id="parseProgress"></div>
-                    </div>
-                    <p id="statusText"></p>
-                </div>
-            </div>
+<div id="resumePreview"></div>
 
-            <div class="issues-section">
-                <h3>Detected Issues</h3>
-                <ul id="issuesList"></ul>
-            </div>
+</div>
 
-            <div class="resume-section">
-                <div class="resume-header-row">
-                    <h3>Generated Resume</h3>
-                    <button onclick="downloadResume()" class="download-btn">
-                        Download PDF
-                    </button>
-                </div>
+</div>
 
-                <div id="resumePreview"></div>
-            </div>
+</section>
 
-        </div>
 
-    </section>
+<div id="loading" class="loading hidden">
+<div class="loader"></div>
+<p>Analyzing Resume...</p>
+</div>
 
 </div>
 
 <script src="script.js"></script>
+
 </body>
 </html>
